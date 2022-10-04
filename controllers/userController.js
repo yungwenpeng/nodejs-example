@@ -2,6 +2,8 @@
 const jwt = require("jsonwebtoken");
 const db = require("../models");
 require('dotenv').config();
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 const { ACCESS_TOKEN_SECRET, ACCESS_TOKEN_EXPIRY, REFRESH_TOKEN_SECRET, REFRESH_TOKEN_EXPIRY } = process.env;
 
@@ -76,7 +78,34 @@ const signup = async (req, res) => {
     }
 }
 
+const getUser = async (req, res) => {
+    var queryType = req.query.query;
+    console.log('getUser - query: ', req.query.query);
+    if(!queryType){
+        console.log("Requested item wasn't found!, ?query=xxxx is required!");
+        return res.status(409).send("?query=xxxx is required! NB: xxxx is all / email");
+    }
+    try {
+        if(queryType == 'all'){
+            const users = await User.findAll({
+                attributes: { exclude: ['updatedAt', 'createdAt'] }
+              });
+            return res.json(users);
+        } else {
+            const user = await User.findOne({
+                where: {
+                    email: queryType//{[Op.like]: queryType+'%'}
+                }
+            });
+            return res.json(user);
+        }
+    } catch(error) {
+        console.log(error);
+    }
+}
+
 module.exports = {
     login,
     signup,
+    getUser,
 };
