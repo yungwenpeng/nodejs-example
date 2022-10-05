@@ -1,7 +1,7 @@
 //importing modules
 const express = require('express')
 const userController = require('../controllers/userController')
-const { signup, login, getUser } = userController
+const { signup, login, getUser, updateUser, deleteUser } = userController
 const userAuth = require('../middlewares/userAuth')
 
 const router = express.Router()
@@ -14,5 +14,7 @@ router.post('/signup', userAuth.saveUser, signup)
 router.post('/login', login)
 
 router.get('/', getUser)
+router.put('/:email', updateUser)
+router.delete('/:email', deleteUser)
 
 module.exports = router

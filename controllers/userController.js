@@ -34,6 +34,7 @@ const login = async (req, res) => {
                     token: accessToken,
                     refreshToken: refreshToken
                 });
+                req.session.user = user.email;
             }
         } else {
             return res.status(401).send("Authentication failed");
@@ -69,9 +70,9 @@ const signup = async (req, res) => {
             console.log("user", JSON.stringify(user, null, 2));
             console.log(token);
             //send users details
-            return res.status(201).send(user);
+            return res.status(200).send(user);
         } else {
-            return res.status(409).send("Details are not correct");
+            return res.status(400).send("Invalid request body");
         }
     } catch(error) {
         console.log(error);
@@ -90,17 +91,68 @@ const getUser = async (req, res) => {
             const users = await User.findAll({
                 attributes: { exclude: ['updatedAt', 'createdAt'] }
               });
-            return res.json(users);
+            if(users) {
+                return res.status(200).json(users);
+            } else {
+                return res.status(400).send("Invalid request body");
+            }
         } else {
             const user = await User.findOne({
                 where: {
                     email: queryType//{[Op.like]: queryType+'%'}
                 }
             });
-            return res.json(user);
+            if(user) {
+                return res.status(200).json(user);
+            } else {
+                return res.status(400).send("Invalid request body");
+            }
         }
     } catch(error) {
         console.log(error);
+    }
+}
+
+const updateUser = async (req, res) => {
+    var updateItem = req.params.email;
+    console.log('updateUser - updateItem: ', updateItem);
+    const { userName, email, password, role } = req.body;
+    try {
+        const user = await User.update(
+            {
+                userName: userName,
+                email: email,
+                password: password,
+                role: role
+            },
+            {
+                where: {email: updateItem}
+            }
+        )
+        if (user) {
+            return res.status(200).send(email + " was updated successfully.");
+        } else {
+            return res.status(400).send("Invalid request body");
+        }
+    } catch(error) {
+        console.log(error)
+    }
+}
+
+const deleteUser = async (req, res) => {
+    const email = req.params.email;
+    try {
+        const user = await User.findOne({
+            where : {email: email}
+        });
+        if(user) {
+            await user.destroy();
+            return res.status(200).send("User "+ email + " is deleted");
+        } else {
+            return res.status(404).send("Invalid email: " + email);
+        }
+    } catch(error) {
+        console.log(error)
     }
 }
 
@@ -108,4 +160,6 @@ module.exports = {
     login,
     signup,
     getUser,
+    updateUser,
+    deleteUser,
 };
