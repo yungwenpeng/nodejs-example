@@ -21,25 +21,26 @@ const login = async (req, res) => {
             const isSame = password == user.password ? true : false;
             if (isSame) {
                 const accessToken = jwt.sign(
-                    {name: user.username, password: user.password, email: user.email, role: user.role},
+                    { name: user.username, password: user.password, email: user.email, role: user.role },
                     ACCESS_TOKEN_SECRET,
                     { expiresIn: ACCESS_TOKEN_EXPIRY }
                 );
                 const refreshToken = jwt.sign(
-                    {name: user.username, password: user.password, email: user.email, role: user.role},
+                    { name: user.username, password: user.password, email: user.email, role: user.role },
                     REFRESH_TOKEN_SECRET,
                     { expiresIn: REFRESH_TOKEN_EXPIRY }
                 );
-                res.status(201).send({
+                res.status(200).send({
                     token: accessToken,
                     refreshToken: refreshToken
                 });
-                req.session.user = user.email;
+            } else {
+                return res.status(401).send("Authentication failed");
             }
         } else {
             return res.status(401).send("Authentication failed");
         }
-    } catch(error) {
+    } catch (error) {
         console.log(error);
     }
 }
@@ -62,7 +63,7 @@ const signup = async (req, res) => {
         // set cookie with the token generated
         if (user) {
             let token = jwt.sign(
-                {name: user.username, password: user.password, email: user.email, role: user.role},
+                { name: user.username, password: user.password, email: user.email, role: user.role },
                 REFRESH_TOKEN_SECRET,
                 { expiresIn: REFRESH_TOKEN_EXPIRY }
             );
@@ -74,7 +75,7 @@ const signup = async (req, res) => {
         } else {
             return res.status(400).send("Invalid request body");
         }
-    } catch(error) {
+    } catch (error) {
         console.log(error);
     }
 }
@@ -82,16 +83,16 @@ const signup = async (req, res) => {
 const getUser = async (req, res) => {
     var queryType = req.query.query;
     console.log('getUser - query: ', req.query.query);
-    if(!queryType){
+    if (!queryType) {
         console.log("Requested item wasn't found!, ?query=xxxx is required!");
         return res.status(409).send("?query=xxxx is required! NB: xxxx is all / email");
     }
     try {
-        if(queryType == 'all'){
+        if (queryType == 'all') {
             const users = await User.findAll({
-                attributes: { exclude: ['updatedAt', 'createdAt'] }
-              });
-            if(users) {
+                attributes: { exclude: ['password'] }
+            });
+            if (users) {
                 return res.status(200).json(users);
             } else {
                 return res.status(400).send("Invalid request body");
@@ -100,15 +101,16 @@ const getUser = async (req, res) => {
             const user = await User.findOne({
                 where: {
                     email: queryType//{[Op.like]: queryType+'%'}
-                }
+                },
+                attributes: { exclude: ['password'] }
             });
-            if(user) {
+            if (user) {
                 return res.status(200).json(user);
             } else {
                 return res.status(400).send("Invalid request body");
             }
         }
-    } catch(error) {
+    } catch (error) {
         console.log(error);
     }
 }
@@ -118,7 +120,23 @@ const updateUser = async (req, res) => {
     console.log('updateUser - updateItem: ', updateItem);
     const { userName, email, password, role } = req.body;
     try {
-        const user = await User.update(
+        const user = await User.findOne({
+            where: {
+                email: updateItem
+            }
+        });
+        if (!user) {
+            return res.status(409).send("Requested "+updateItem+" wasn't found!");
+        }
+        const checkSameUser = await User.findOne({
+            where: {
+                email: user.email
+            }
+        });
+        if (checkSameUser) {
+            return res.status(403).send("Requested "+email+" is same as others, please change and retry it.");
+        }
+        await User.update(
             {
                 userName: userName,
                 email: email,
@@ -126,15 +144,18 @@ const updateUser = async (req, res) => {
                 role: role
             },
             {
-                where: {email: updateItem}
+                where: { email: updateItem }
             }
-        )
-        if (user) {
-            return res.status(200).send(email + " was updated successfully.");
-        } else {
-            return res.status(400).send("Invalid request body");
-        }
-    } catch(error) {
+        );
+        const findUser = await User.findOne({
+            where: {
+                email: email
+            },
+            attributes: { exclude: ['password'] }
+        });
+        return res.status(200).send(findUser);
+
+    } catch (error) {
         console.log(error)
     }
 }
@@ -143,15 +164,15 @@ const deleteUser = async (req, res) => {
     const email = req.params.email;
     try {
         const user = await User.findOne({
-            where : {email: email}
+            where: { email: email }
         });
-        if(user) {
-            await user.destroy();
-            return res.status(200).send("User "+ email + " is deleted");
+        if (!user) {
+            return res.status(409).send("Requested " + email + " wasn't found!");
         } else {
-            return res.status(404).send("Invalid email: " + email);
+            await user.destroy();
+            return res.status(200).send("OK");
         }
-    } catch(error) {
+    } catch (error) {
         console.log(error)
     }
 }

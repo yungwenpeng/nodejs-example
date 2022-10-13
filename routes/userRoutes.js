@@ -8,13 +8,14 @@ const router = express.Router()
 
 //signup endpoint
 //passing the middleware function to the signup
-router.post('/signup', userAuth.saveUser, signup)
+router.post('/users/signup', userAuth.saveUser, signup)
 
 //login route
 router.post('/login', login)
 
-router.get('/', getUser)
-router.put('/:email', updateUser)
-router.delete('/:email', deleteUser)
+// users?query=
+router.get('/users', getUser)
+router.put('/users/:email', updateUser)
+router.delete('/users/:email', deleteUser)
 
 module.exports = router

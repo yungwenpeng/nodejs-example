@@ -1,0 +1,333 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Local Test API",
+        "description": "Simple CRUD RESTful API in Node.js",
+        "version": "0.0.1",
+        "license": {
+            "name": "Apache License Version 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "servers": [
+        {
+            "url": "http://172.17.100.20:3000",
+            "description": "Local server"
+        }
+    ],
+    "tags": [
+        {
+            "name": "login-endpoint",
+            "description": "Login Endpoint"
+        },
+        {
+            "name": "user-controller",
+            "description": "User Controller"
+        }
+    ],
+    "paths": {
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "login-endpoint"
+                ],
+                "operationId": "loginUsingPOST",
+                "summary": "Login method to get user JWT data",
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "Login method used to authenticate user and get JWT token data.",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "login",
+                        "description": "Request body as following",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "email": {
+                                    "type": "string",
+                                    "example": "test@test.com"
+                                },
+                                "password": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "token": {
+                                    "type": "string",
+                                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVC..."
+                                },
+                                "refreshToken": {
+                                    "type": "string",
+                                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVC..."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "type": "integer", "example": 401
+                                },
+                                "message": {
+                                    "type": "string", "example": "Authentication failed"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users?query={userEmail}": {
+            "get": {
+                "tags": [
+                    "user-controller"
+                ],
+                "operationId": "getUserUsingGET",
+                "summary": "Get user / users",
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "Fetch the User object based on the provided query parameter. \"test@test.com\" for fetch one user or \"all\" for fetch all users.",
+                "parameters": [
+                    {
+                        "name": "userEmail",
+                        "required": true,
+                        "in": "path",
+                        "type": "string",
+                        "description": "Email of the user"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        },
+                        "description": "A JSON array of user information"
+                    },
+                    "400": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "type": "integer", "example": 400
+                                },
+                                "message": {
+                                    "type": "string", "example": "Invalid request body"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "409": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "type": "integer", "example": 409
+                                },
+                                "message": {
+                                    "type": "string", "example": "Requested item wasn't found!"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/api/users/{userEmail}": {
+            "put": {
+                "tags": [
+                    "user-controller"
+                ],
+                "operationId": "updateUserUsingPUT",
+                "summary": "Update User",
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "Update User object based on the provided object.",
+                "parameters": [
+                    {
+                        "name": "userEmail",
+                        "required": true,
+                        "in": "path",
+                        "type": "string",
+                        "description": "Input the Email of the user which should be updated"
+                    },
+                    {
+                        "in": "body",
+                        "name": "updateUser",
+                        "description": "Request body as following",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "userName": {
+                                    "type": "string",
+                                    "example": "test"
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "example": "test@test.com"
+                                },
+                                "password": {
+                                    "type": "string"
+                                },
+                                "role": {
+                                    "type": "string",
+                                    "example": "user"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "400": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "type": "integer", "example": 400
+                                },
+                                "message": {
+                                    "type": "string", "example": "Invalid request body"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "403": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "type": "integer", "example": 403
+                                },
+                                "message": {
+                                    "type": "string", "example": "Email is same as others. You don't have permission to perform this operation!"
+                                }
+                            }
+                        },
+                        "description": "Forbidden"
+                    },
+                    "409": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "type": "integer", "example": 409
+                                },
+                                "message": {
+                                    "type": "string", "example": "Requested email wasn't found!"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    }
+                }
+            }, 
+            "delete": {
+                "tags": [
+                    "user-controller"
+                ],
+                "operationId": "deleteUserUsingPUT",
+                "summary": "Delete User",
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "Delete User.",
+                "parameters": [
+                    {
+                        "name": "userEmail",
+                        "required": true,
+                        "in": "path",
+                        "type": "string",
+                        "description": "Input the Email of the user which should be updated"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "409": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "type": "integer", "example": 409
+                                },
+                                "message": {
+                                    "type": "string", "example": "Requested email wasn't found!"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "User": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 1
+                },
+                "userName": {
+                    "type": "string",
+                    "example": "Jimmy"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "test@test.com"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "user"
+                },
+                "createdAT": {
+                    "type":"string",
+                    "example": "2022-09-19T09:03:45.281Z"
+                },
+                "updatedAt": {
+                    "type":"string",
+                    "example": "2022-09-19T09:03:46.865Z"
+                }
+            }
+        },
+        "InvalidResponse": {
+            "type": "object",
+            "properties": {
+                "statusCode": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

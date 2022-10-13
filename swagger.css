@@ -1,0 +1,8 @@
+div.responses-wrapper>div.responses-inner .responses-table.live-responses-table {
+    background-color: #61f5e8;
+}
+
+div.responses-wrapper>div.responses-inner .responses-table.live-responses-table tr.response td.response-col_description {
+    padding-bottom: 20px;
+    padding-right: 20px;
+}
