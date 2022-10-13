@@ -285,6 +285,83 @@
                     }
                 }
             }
+        },
+        "/api/users/signup": {
+            "post": {
+                "tags": [
+                    "user-controller"
+                ],
+                "operationId": "signupUsingPOST",
+                "summary": "Create User",
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "Create User.",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "User",
+                        "description": "Request body as following",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "userName": {
+                                    "type": "string",
+                                    "example": "test"
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "example": "test@test.com"
+                                },
+                                "password": {
+                                    "type": "string"
+                                },
+                                "role": {
+                                    "type": "string",
+                                    "example": "user"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "400": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "type": "integer", "example": 400
+                                },
+                                "message": {
+                                    "type": "string", "example": "Invalid request body"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "403": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "type": "integer", "example": 403
+                                },
+                                "message": {
+                                    "type": "string", "example": "Email is same as others. You don't have permission to perform this operation!"
+                                }
+                            }
+                        },
+                        "description": "Forbidden"
+                    }
+                }
+            }
         }
     },
     "definitions": {

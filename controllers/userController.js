@@ -133,7 +133,7 @@ const updateUser = async (req, res) => {
                 email: user.email
             }
         });
-        if (checkSameUser) {
+        if (checkSameUser && updateItem != user.email) {
             return res.status(403).send("Requested "+email+" is same as others, please change and retry it.");
         }
         await User.update(
