@@ -90,7 +90,10 @@ const getUser = async (req, res) => {
     try {
         if (queryType == 'all') {
             const users = await User.findAll({
-                attributes: { exclude: ['password'] }
+                attributes: { exclude: ['password'] },
+                where: {
+                    role: {[Op.not]: 'admin'}
+                }
             });
             if (users) {
                 return res.status(200).json(users);
@@ -134,7 +137,7 @@ const updateUser = async (req, res) => {
             }
         });
         if (checkSameUser && updateItem != user.email) {
-            return res.status(403).send("Requested "+email+" is same as others, please change and retry it.");
+            return res.status(403).send("Requested "+email+" is duplicate, please change and retry it.");
         }
         await User.update(
             {

@@ -224,7 +224,7 @@
                                     "type": "integer", "example": 403
                                 },
                                 "message": {
-                                    "type": "string", "example": "Email is same as others. You don't have permission to perform this operation!"
+                                    "type": "string", "example": "Email is duplicate. You don't have permission to perform this operation!"
                                 }
                             }
                         },
@@ -354,7 +354,7 @@
                                     "type": "integer", "example": 403
                                 },
                                 "message": {
-                                    "type": "string", "example": "Email is same as others. You don't have permission to perform this operation!"
+                                    "type": "string", "example": "Email is duplicate. You don't have permission to perform this operation!"
                                 }
                             }
                         },

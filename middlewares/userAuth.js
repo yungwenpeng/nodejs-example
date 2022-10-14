@@ -9,6 +9,16 @@ const User = db.users;
 const saveUser = async (req, res, next) => {
     //search the database to see if user exist
     try {
+        //checking if email already exist
+        const emailcheck = await User.findOne({
+            where: {
+                email: req.body.email,
+            },
+        });
+        //if email exist in the database respond with a status of 409
+        if (emailcheck) {
+            return res.status(403).send("Email is duplicate. You don't have permission to perform this operation!");
+        }
         const username = await User.findOne({
             where: {
                 userName: req.body.userName,
@@ -16,19 +26,7 @@ const saveUser = async (req, res, next) => {
         });
         //if username exist in the database respond with a status of 409
         if (username) {
-            return res.json(409).send("username already taken");
-        }
-
-        //checking if email already exist
-        const emailcheck = await User.findOne({
-            where: {
-                email: req.body.email,
-            },
-        });
-        
-        //if email exist in the database respond with a status of 409
-        if (emailcheck) {
-            return res.json(409).send("Authentication failed");
+            return res.status(409).send("username already token");
         }
         next();
     } catch (error) {
