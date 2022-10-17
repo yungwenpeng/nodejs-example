@@ -262,7 +262,7 @@
                         "required": true,
                         "in": "path",
                         "type": "string",
-                        "description": "Input the Email of the user which should be updated"
+                        "description": "Input the Email of the user which should be deleted"
                     }
                 ],
                 "responses": {

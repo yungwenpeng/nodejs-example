@@ -41,7 +41,7 @@ const login = async (req, res) => {
             return res.status(401).send("Authentication failed");
         }
     } catch (error) {
-        console.log(error);
+        console.log('login - email:', email, ' - [Error]: ', error);
     }
 }
 
@@ -76,7 +76,7 @@ const signup = async (req, res) => {
             return res.status(400).send("Invalid request body");
         }
     } catch (error) {
-        console.log(error);
+        console.log('signup - [Error]: ', error);
     }
 }
 
@@ -114,7 +114,7 @@ const getUser = async (req, res) => {
             }
         }
     } catch (error) {
-        console.log(error);
+        console.log('getUser - queryType:', queryType, ' - [Error]: ', error);
     }
 }
 
@@ -159,7 +159,7 @@ const updateUser = async (req, res) => {
         return res.status(200).send(findUser);
 
     } catch (error) {
-        console.log(error)
+        console.log('updateUser - updateItem:', updateItem, ' - [Error]: ', error)
     }
 }
 
@@ -176,7 +176,7 @@ const deleteUser = async (req, res) => {
             return res.status(200).send("OK");
         }
     } catch (error) {
-        console.log(error)
+        console.log('deleteUser - email:', email, ' - [Error]: ', error)
     }
 }
 

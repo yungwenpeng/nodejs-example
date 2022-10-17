@@ -1,5 +1,4 @@
 //importing modules
-const express = require("express");
 const db = require("../models");
 //Assigning db.users to User variable
 const User = db.users;
