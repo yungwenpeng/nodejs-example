@@ -21,12 +21,12 @@ const login = async (req, res) => {
             const isSame = password == user.password ? true : false;
             if (isSame) {
                 const accessToken = jwt.sign(
-                    { name: user.username, password: user.password, email: user.email, role: user.role },
+                    { userName: user.userName, email: user.email, role: user.role },
                     ACCESS_TOKEN_SECRET,
                     { expiresIn: ACCESS_TOKEN_EXPIRY }
                 );
                 const refreshToken = jwt.sign(
-                    { name: user.username, password: user.password, email: user.email, role: user.role },
+                    { userName: user.userName, email: user.email, role: user.role },
                     REFRESH_TOKEN_SECRET,
                     { expiresIn: REFRESH_TOKEN_EXPIRY }
                 );
@@ -76,7 +76,7 @@ const signup = async (req, res) => {
             return res.status(400).send("Invalid request body");
         }
     } catch (error) {
-        console.log('signup - [Error]: ', error);
+        console.log('signup userName:', userName, ' - [Error]: ', error);
     }
 }
 
