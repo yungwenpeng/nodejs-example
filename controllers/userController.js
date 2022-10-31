@@ -41,7 +41,7 @@ const login = async (req, res) => {
             return res.status(401).send("Authentication failed");
         }
     } catch (error) {
-        console.log('login - email:', email, ' - [Error]: ', error);
+        console.log('login - [Error]: ', error);
     }
 }
 
