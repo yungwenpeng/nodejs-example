@@ -4,11 +4,35 @@ const db = require("../models");
 require('dotenv').config();
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+const WebSocket = require("ws");
 
 const { ACCESS_TOKEN_SECRET, ACCESS_TOKEN_EXPIRY, REFRESH_TOKEN_SECRET, REFRESH_TOKEN_EXPIRY } = process.env;
 
 // Assigning users to the variable User
 const User = db.users;
+
+const broadcast = (clients, method, message) => {
+    clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            console.log('[SERVER] broadcast(',method,'): ', JSON.stringify(message));
+            const data = {
+                id: message.id,
+                userName: message.userName,
+                email: message.email,
+                password: message.password,
+                role: message.role,
+                updatedAt: message.updatedAt,
+                createdAt: message.createdAt,
+                method: method
+            }
+            client.send(JSON.stringify(data), (err) => {
+                if(err){
+                  console.log(`[SERVER] error:${err}`);
+                }
+              });
+        }
+    })
+}
 
 //login authentication
 const login = async (req, res) => {
@@ -71,12 +95,13 @@ const signup = async (req, res) => {
             console.log("user", JSON.stringify(user, null, 2));
             console.log(token);
             //send users details
+            broadcast(req.app.locals.clients, 'signup', user);
             return res.status(200).send(user);
         } else {
             return res.status(400).send("Invalid request body");
         }
     } catch (error) {
-        console.log('signup userName:', userName, ' - [Error]: ', error);
+        console.log('signup - [Error]: ', error);
     }
 }
 
@@ -156,6 +181,7 @@ const updateUser = async (req, res) => {
             },
             attributes: { exclude: ['password'] }
         });
+        broadcast(req.app.locals.clients, 'update', findUser);
         return res.status(200).send(findUser);
 
     } catch (error) {
@@ -173,6 +199,7 @@ const deleteUser = async (req, res) => {
             return res.status(409).send("Requested " + email + " wasn't found!");
         } else {
             await user.destroy();
+            broadcast(req.app.locals.clients, 'delete', user);
             return res.status(200).send("OK");
         }
     } catch (error) {

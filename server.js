@@ -1,5 +1,7 @@
 //importing modules
 const express = require('express')
+const { createServer } = require("http");
+const WebSocket = require('ws');
 const cookieParser = require('cookie-parser')
 const db = require('./models')
 const userRoutes = require ('./routes/userRoutes')
@@ -42,9 +44,9 @@ app.use(function (req, res, next) {
   next();
 });
 app.use('/api', userRoutes)
-
+const server = createServer(app);
 //listening to server connection
-app.listen(port, function (error) {
+server.listen(port, function (error) {
   if (error) console.log("Error in server setup");
   console.log(`Server is listening on http://${host}:${port}`);
 })
@@ -52,3 +54,33 @@ app.listen(port, function (error) {
 app.on('close', function(){
   db.sequelize.close();
 })
+
+
+const socketServer = new WebSocket.Server({server});
+socketServer.on('connection', (socketClient, req) => {
+  //https://stackoverflow.com/questions/22429744/how-to-setup-route-for-websocket-server-in-express
+  app.locals.clients = socketServer.clients;
+  //console.log('[SERVER] app.locals.client:', app.locals.clients);
+  //get the IP address of the client
+  const ip = req.socket.remoteAddress;
+  console.log('[SERVER] connected - Ip:', ip);
+  console.log('[SERVER] client Set length: ', socketServer.clients.size);
+  socketClient.on('message', (data) => {
+    // data: from client's message
+    // A client WebSocket broadcasting to all connected WebSocket clients
+    console.log('[SERVER] data: ', JSON.stringify([data]));
+    socketServer.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify([data]), (err) => {
+          if(err){
+            console.log(`[SERVER] error:${err}`);
+          }
+        });
+      }
+    });
+  });
+  socketClient.on('close', (socketClient) => {
+    console.log('[SERVER] Close connected');
+    console.log('[SERVER] Number of clients: ', socketServer.clients.size);
+  });
+});

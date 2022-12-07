@@ -1,0 +1,32 @@
+<html>
+<head>
+</head>
+<button id="signupButton" onclick="signup()">signup</button>
+<script>
+const ws = new WebSocket('ws://localhost:3000');
+ws.onopen = () => {
+  console.log('Now connected');
+};
+ws.onclose = () => {
+    console.log('close connection')
+}
+ws.onmessage = event => {
+    console.log('onmessage - event:',event)
+}
+
+function signup() {
+    let path = "http://localhost:3000/api/users/signup";
+
+    let data = {"userName": "user89", "email": "user89@test.com", "password": "abc123", "role": "user"};
+
+    fetch(path, {
+        headers: {
+            "Content-Type": "application/json"},
+            method: "POST", 
+            body: JSON.stringify(data)}
+    );
+};
+</script>
+<body>
+</body>
+</html>
